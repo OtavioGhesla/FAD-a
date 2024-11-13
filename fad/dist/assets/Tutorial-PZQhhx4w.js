@@ -1,0 +1,1 @@
+import{_ as t,c as a,a as o,o as s}from"./index-B0CyqVYp.js";const r={},n={class:"tutorial-page"};function c(l,e){return s(),a("div",n,e[0]||(e[0]=[o("h1",null,"Essa é a página de tutorial",-1)]))}const _=t(r,[["render",c]]);export{_ as default};

@@ -1,0 +1,1 @@
+import{_ as o,o as s,c,a as t}from"./index-B0CyqVYp.js";const n={name:"Back"},r={class:"back"};function d(e,a,i,_,p,l){return s(),c("div",r,[t("span",{onClick:a[0]||(a[0]=k=>e.$router.back()),class:"material-symbols-outlined",id:"icon"},"arrow_back")])}const B=o(n,[["render",d],["__scopeId","data-v-c86d54c9"]]);export{B};
