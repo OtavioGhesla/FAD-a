@@ -1,1 +1,0 @@
-import{_ as e,c as o,a as t,o as a}from"./index-B0CyqVYp.js";const r={},c={class:"history-page"};function n(i,s){return a(),o("div",c,s[0]||(s[0]=[t("h1",null,"Essa é a página de histórico",-1)]))}const d=e(r,[["render",n]]);export{d as default};
