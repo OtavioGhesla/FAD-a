@@ -12,19 +12,19 @@
                 <h2>Escolha a imagem base</h2>
                 <div class="input-base-image">
                     <div class="top">
-                        <img class="base-logo" src="../assets/img/python-icon.svg">
-                        <label for="rad1">Python</label>
-                        <input type="radio" name="base-image" class="radio" id="rad1" value="python:latest" v-model="baseImage">
+                        <img class="base-logo" src="../assets/img/ubuntu-icon.svg">
+                        <label for="rad4">Ubuntu</label>
+                        <input type="radio" name="base-image" class="radio" id="rad2" value="ubuntu:latest" v-model="baseImage">
                     </div>
                     <div class="mid" v-if="!gpuSupport">
                         <img class="base-logo" src="../assets/img/nvidia-icon.svg">
                         <label for="rad4">Nvidia CUDA</label>
                         <input type="radio" name="base-image" class="radio" id="rad4" value="nvidia/cuda:11.8-cudnn8-devel-ubuntu20.04" v-model="baseImage">
                     </div>
-                    <div class="mid">
-                        <img class="base-logo" src="../assets/img/ubuntu-icon.svg">
-                        <label for="rad4">Ubuntu</label>
-                        <input type="radio" name="base-image" class="radio" id="rad2" value="ubuntu:latest" v-model="baseImage">
+                    <div class="mid" v-if="!gpuSupport">
+                        <img class="base-logo" src="../assets/img/python-icon.svg">
+                        <label for="rad1">Python</label>
+                        <input type="radio" name="base-image" class="radio" id="rad1" value="python:latest" v-model="baseImage">
                     </div>
                     <div class="bottom">
                         <img class="base-logo" src="../assets/img/debian-icon.svg">
@@ -34,6 +34,15 @@
                     <div v-if="errorMessage" class="error-message">
                         {{ errorMessage }}
                     </div>
+                </div>
+                <h2>Insira o diretório que você vai trabalhar</h2>
+                <div class="input-workdir">
+                    <input 
+                        class="workdir" 
+                        type="text" 
+                        placeholder="Insira o local do diretório (Exemplo: /app)" 
+                        v-model="workdir" 
+                    />
                 </div>
                 <div class="input-config">
                     <h2>Escolha o framework/biblioteca que você está utilizando</h2>
@@ -135,6 +144,8 @@ export default {
   data() {
     return {
       baseImage: "",
+      workdir: "",
+      framework: "",
       dependencies: "",
       envVars: "",
       startupScript: "",
@@ -149,6 +160,7 @@ export default {
 
         const dockerfileData = {
             baseImage: this.baseImage,
+            workdir: this.workdir,
             framework: this.framework,
             dependencies: this.dependencies,
             gpuSupport: this.gpuSupport,
