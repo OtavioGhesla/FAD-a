@@ -22,21 +22,25 @@
                     <label class="labelCheckbox" for="gpuCheckbox">Você está utilizando GPU em seu modelo?</label>
                 </div>
                 <h2>Escolha a imagem base</h2>
-                <div class="input-base-image">
+                <div class="checkbox">
+                    <input type="checkbox" id="gpuCheckbox" v-model="useDockerfile" />
+                    <label class="labelCheckbox" for="gpuCheckbox">Deseja utilizar um Dockerfile como base para seu Docker Compose?</label>
+                </div>
+                <div class="input-base-image" v-if="!useDockerfile">
                     <div class="top">
-                        <img class="base-logo" src="../assets/img/python-icon.svg">
-                        <label for="rad1">Python</label>
-                        <input type="radio" name="base-image" class="radio" id="rad1" value="python:latest" v-model="baseImage">
+                        <img class="base-logo" src="../assets/img/ubuntu-icon.svg">
+                        <label for="rad4">Ubuntu</label>
+                        <input type="radio" name="base-image" class="radio" id="rad2" value="ubuntu:latest" v-model="baseImage">
                     </div>
                     <div class="mid" v-if="!gpuSupport">
                         <img class="base-logo" src="../assets/img/nvidia-icon.svg">
                         <label for="rad4">Nvidia CUDA</label>
                         <input type="radio" name="base-image" class="radio" id="rad4" value="nvidia/cuda:11.8-cudnn8-devel-ubuntu20.04" v-model="baseImage">
                     </div>
-                    <div class="mid">
-                        <img class="base-logo" src="../assets/img/ubuntu-icon.svg">
-                        <label for="rad4">Ubuntu</label>
-                        <input type="radio" name="base-image" class="radio" id="rad2" value="ubuntu:latest" v-model="baseImage">
+                    <div class="mid" v-if="!gpuSupport">
+                        <img class="base-logo" src="../assets/img/python-icon.svg">
+                        <label for="rad1">Python</label>
+                        <input type="radio" name="base-image" class="radio" id="rad1" value="python:latest" v-model="baseImage">
                     </div>
                     <div class="bottom">
                         <img class="base-logo" src="../assets/img/debian-icon.svg">
@@ -47,56 +51,22 @@
                         {{ errorImage }}
                     </div>
                 </div>
-                <div class="input-config">
-                    <h2>Escolha o framework/biblioteca que você está utilizando</h2>
-                    <div class="input-framework-or-library">
-                        <div class="top">
-                            <img class="base-logo" src="../assets/img/pytorch-icon.svg">
-                            <label for="rad1">Pytorch</label>
-                            <input 
-                                type="radio" 
-                                name="framework" 
-                                class="radio" 
-                                id="rad5" 
-                                :value="gpuSupport ? 'torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cuda/11.8' : 'torch torchvision torchaudio'" 
-                                v-model="framework" />
-                        </div>
-                        <div class="mid">
-                            <img class="base-logo" src="../assets/img/tensorflow-icon.svg">
-                            <label for="rad4">Tensorflow</label>
-                            <input 
-                                type="radio" 
-                                name="framework" 
-                                class="radio" 
-                                id="rad6" 
-                                :value="gpuSupport ? 'tensorflow-gpu' : 'tensorflow'" 
-                                v-model="framework" />
-                        </div>
-                        <div class="bottom">
-                            <img class="base-logo" src="../assets/img/langchain-icon.svg">
-                            <label for="rad4">Langchain</label>
-                            <input 
-                                type="radio" 
-                                name="framework" 
-                                class="radio" 
-                                id="rad7" 
-                                :value="'pip install langchain[all]'" 
-                                v-model="framework" />
-                        </div>
-                    </div>
-                </div>
-                <h2>Escolha o método de inserir as dependências</h2>
-                <div class="input-dependencies">
-                    <div class="checkbox">
-                        <input type="checkbox" id="useRequeriments" v-model="useRequeriments" />
-                        <label class="labelCheckbox" for="useRequeriments">Deseja utilizar requeriments.txt?</label>
-                    </div>
+                <div class="input-context" v-if="useDockerfile">
+                    <h2>Insira o diretório que você vai trabalhar</h2>
                     <input 
-                        class="dependencies" 
+                        class="context" 
                         type="text" 
-                        placeholder="Insira as dependências (Exemplo: numpy seaborn matplotlib)" 
-                        v-model="dependencies" 
-                        v-if="!useRequeriments" 
+                        placeholder="Insira o caminho do seu Dockerfile" 
+                        v-model="context"
+                    />
+                </div>
+                <div class="input-workdir" v-if="!useDockerfile">
+                    <h2>Insira o diretório que você vai trabalhar</h2>
+                    <input 
+                        class="workdir" 
+                        type="text" 
+                        placeholder="Insira o local do diretório (Exemplo: /app)" 
+                        v-model="workdir" 
                     />
                 </div>
                 <h2>Insira as váriaveis de ambiente</h2>
@@ -113,7 +83,7 @@
                     <input 
                         class="ports" 
                         type="text" 
-                        placeholder="Insira a porta que o container vai rodar (Exemplo: 8080)" 
+                        placeholder="Insira a porta que o container vai rodar (Exemplo: 8080:8080)" 
                         v-model="ports" 
                     />
                 </div>
@@ -122,7 +92,7 @@
                     <input 
                         class="startupScript" 
                         type="text" 
-                        placeholder="Insira o comando que vai rodar sua aplicação (Exemplo: python app.py)" 
+                        placeholder="Insira o comando que vai rodar sua aplicação (Exemplo: python3 app.py)" 
                         v-model="startupScript" 
                     />
                 </div>
@@ -148,12 +118,12 @@ export default{
     return{
         service: "",
         baseImage: "",
+        workdir: "",
         errorService: "",
         errorImage: "",
         gpuSupport: false,
-        framework: "",
-        useRequeriments: false,
-        dependencies: "",
+        useDockerfile: false,
+        context: "",
         envVars: "",
         ports: "",
         startupScript: ""
@@ -166,13 +136,13 @@ export default{
         const dockerComposeData = {
             service: this.service,
             baseImage: this.baseImage,
-            framework: this.framework,
-            dependencies: this.dependencies,
+            workdir: this.workdir,
             gpuSupport: this.gpuSupport,
             envVars: this.envVars,
             ports: this.ports,
             startupScript: this.startupScript,
-            useRequirements: this.useRequeriments
+            useDockerfile: this.useDockerfile,
+            context: this.context
         };
 
         fetch('https://api-fad.onrender.com/createDockerCompose', {
