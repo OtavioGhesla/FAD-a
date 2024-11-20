@@ -23,6 +23,7 @@
             <h3>Dockerfile #{{ index + 1 }}</h3>
             
             <p v-if="dockerfile.base_image"><strong>Imagem Base:</strong> {{ dockerfile.base_image }}</p>
+            <p v-if="dockerfile.workdir"><strong>Workdir:</strong> {{ dockerfile.workdir }}</p> <!-- Corrigido aqui -->
             <p v-if="dockerfile.framework"><strong>Framework:</strong> {{ dockerfile.framework }}</p>
             <p v-if="dockerfile.dependencies"><strong>Dependências:</strong> {{ dockerfile.dependencies }}</p>
             <p v-if="dockerfile.gpu_support"><strong>Suporte a GPU:</strong> {{ dockerfile.gpu_support ? 'Sim' : 'Não' }}</p>
@@ -60,13 +61,13 @@
             
             <p v-if="dockercompose.service_name"><strong>Nome do Serviço:</strong> {{ dockercompose.service_name }}</p>
             <p v-if="dockercompose.base_image"><strong>Imagem Base:</strong> {{ dockercompose.base_image }}</p>
-            <p v-if="dockercompose.framework"><strong>Framework:</strong> {{ dockercompose.framework }}</p>
-            <p v-if="dockercompose.dependencies"><strong>Dependências:</strong> {{ dockercompose.dependencies }}</p>
+            <p v-if="dockercompose.use_dockerfile"><strong>Usar Dockerfile:</strong> {{ dockercompose.use_dockerfile ? 'Sim' : 'Não' }}</p>
+            <p v-if="dockercompose.workdir"><strong>Workdir:</strong> {{ dockercompose.workdir }}</p>
+            <p v-if="dockercompose.service_name"><strong>Caminho do Dockerfile:</strong> {{ dockercompose.context }}</p>
             <p v-if="dockercompose.gpu_support"><strong>Suporte a GPU:</strong> {{ dockercompose.gpu_support ? 'Sim' : 'Não' }}</p>
             <p v-if="dockercompose.env_vars"><strong>Variáveis de Ambiente:</strong> {{ dockercompose.env_vars }}</p>
             <p v-if="dockercompose.ports"><strong>Portas:</strong> {{ dockercompose.ports }}</p>
             <p v-if="dockercompose.startup_script"><strong>Script de Inicialização:</strong> {{ dockercompose.startup_script }}</p>
-            <p v-if="dockercompose.use_requirements"><strong>Usar Requirements:</strong> {{ dockercompose.use_requirements ? 'Sim' : 'Não' }}</p>
             <p v-if="dockercompose.created_at"><strong>Criado em:</strong> {{ new Date(dockercompose.created_at).toLocaleString() }}</p>
 
             <pre>{{ dockercompose.content }}</pre>
@@ -251,6 +252,7 @@ export default {
       const dockerfileData = {
         title: dockerfile.base_image,
         base_image: dockerfile.base_image,
+        workdir: dockerfile.workdir,
         framework: dockerfile.framework,
         dependencies: dockerfile.dependencies,
         gpu_support: dockerfile.gpu_support,
@@ -295,14 +297,15 @@ export default {
 
       const dockercomposeData = {
         title: dockercompose.base_image,
+        service_name: dockercompose.service_name,
         base_image: dockercompose.base_image,
-        framework: dockercompose.framework,
-        dependencies: dockercompose.dependencies,
+        use_dockerfile: dockercompose.use_dockerfile,
+        workdir: dockercompose.workdir,
         gpu_support: dockercompose.gpu_support,
         env_vars: dockercompose.env_vars,
         ports: dockercompose.ports,
         startup_script: dockercompose.startup_script,
-        use_requirements: dockercompose.use_requirements,
+        context: dockercompose.context,
       };
 
       try {
@@ -393,6 +396,7 @@ button:hover {
 p{
   color: #000;
   font-size: 18px;
+  margin-bottom: 10px;
 }
 
 strong{
@@ -412,6 +416,7 @@ h2{
 h3{
   color: #000;
   font-size: 20px;
+  margin-bottom: 20px;
 }
 
 @media screen and (max-width: 767px){
@@ -432,10 +437,12 @@ h3{
 
   h3{
     font-size: 16px;
+    margin-bottom: 15px;
   }
 
   p{
     font-size: 14px;
+    margin-bottom: 5px;
   }
 
   button{
